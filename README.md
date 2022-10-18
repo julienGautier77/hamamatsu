@@ -17,12 +17,16 @@ python 3.x
 Numpy
 PyQt6
 visu
+
 Installation
-pip install hamamatsu for installing https://github.com/tiagocoutinho/hamamatsu
 
-Install visu :
+   hamamatsu
 
-pip install git+https://github.com/julienGautier77/visu
+   pip install hamamatsu for installing https://github.com/tiagocoutinho/hamamatsu
+
+   Install visu :
+
+   pip install git+https://github.com/julienGautier77/visu
 
 Usage
 appli = QApplication(sys.argv)
