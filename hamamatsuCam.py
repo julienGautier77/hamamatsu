@@ -1,25 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 31 23:14:46 2001
+Created on Thu Oct 18 10:14:46 2022
 on conda prompt 
 
-pip install qdarkstyle (https://github.com/ColinDuquesnoy/QDarkStyleSheet.git)
-pip install pyqtgraph (https://github.com/pyqtgraph/pyqtgraph.git)
-pip install visu
-install PVCAM and PVCAM sdk
-donwload PyVcam from : https://github.com/Photometrics/PyVCAM 
-Navigate into the directory that contains setup.py and run python setup.py install
-install vs_buildtools https://visualstudio.microsoft.com/fr/downloads/
-install window app sdk https://developer.microsoft.com/fr-fr/windows/downloads/windows-sdk/
-Becarrefull : Change parameter for different camera
-# ['Internal Trigger', 'Edge Trigger', 'Software Trigger Edge', 'Software Trigger First'] for retiga 7
-            # for retiga 6 Available keys are: ['Timed', 'Strobed', 'Bulb', 'Trigger First', 'Variable Timed']
 
+pip install visu
+pip install hamamatsu 
 @author: juliengautier
-modified 2019/08/13 : add position RSAI motors
+modified 2022/10/18 
 """
 
-__version__='2022.4'
+__version__='2022.10'
 __author__='julien Gautier'
 version=__version__
 
@@ -34,7 +25,7 @@ import numpy as np
 import pathlib,os
 import pyqtgraph as pg 
 import hamamatsu #https://github.com/tiagocoutinho/hamamatsu pip install hamamatsu
-from dcam import DCAM, ETriggerSource, Stream, copy_frame,dcam,ETriggerSource,EIDString
+from hamamatsu.dcam import DCAM, ETriggerSource, Stream, copy_frame,dcam,ETriggerSource,EIDString
 import logging
 import qdarkstyle
 # from visu import SEE
