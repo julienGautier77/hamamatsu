@@ -136,7 +136,10 @@ class HAMAMATSU(QWidget):
                 self.cam["exposure_time"]=0.001*int(self.conf.value(self.nbcam+"/shutter"))# set cam to  ms
                 print('now exposure is ',self.cam["exposure_time"].value)
                 self.cam["trigger_source"]=ETriggerSource.INTERNAL
-             
+
+                
+               
+                
                 self.sh=int(1000*self.cam["exposure_time"].value)
                 
   
@@ -627,17 +630,18 @@ class ThreadRunAcq(QtCore.QThread):
         print('-----> Start  multi acquisition')
         
         while True :
-
+            
             if self.stopRunAcq:
                 break
             
             try:
                 with dcam:
                         with self.cam :
+                            print( "temp:",self.cam["sensor_temperature"].value)
                             with Stream(self.cam,1) as stream :
                                 self.cam.start()
                                 
-                                for i, frame_buffer in enumerate( stream ):
+                                for frame_buffer in  stream :
                                     
                                     data = copy_frame(frame_buffer)
                                     data=np.rot90(data,-1)
