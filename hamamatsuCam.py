@@ -10,7 +10,7 @@ pip install hamamatsu
 modified 2022/10/18 
 """
 
-__version__='2022.10'
+__version__='2023.12'
 __author__='julien Gautier'
 version=__version__
 
