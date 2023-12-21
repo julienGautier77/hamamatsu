@@ -25,7 +25,7 @@ import numpy as np
 import pathlib,os
 import pyqtgraph as pg 
 import hamamatsu #https://github.com/tiagocoutinho/hamamatsu pip install hamamatsu
-from hamamatsu.dcam import DCAM, ETriggerSource, Stream, copy_frame,dcam,ETriggerSource,EIDString
+from hamamatsu.dcam import DCAM, ETriggerSource, Stream, copy_frame,dcam,ETriggerSource,EIDString,ETriggerActive,ETriggerEnableActive
 import logging
 import qdarkstyle
 # from visu import SEE
@@ -127,11 +127,11 @@ class HAMAMATSU(QWidget):
 
             self.cam=dcam[0]
             with self.cam:
-                self.camType=self.cam.info[EIDString.CAMERA_SERIESNAME]
+                self.camType=''#self.cam.info[EIDString.CAMERA_SERIESNAME]
                 self.sn=self.cam.info[EIDString.CAMERAID]
-                # print("serial number",self.cam.info)
-                # print('init exposure',self.cam["exposure_time"].value)
-                # print(self.cam["trigger_source"].value)
+                print("serial number",self.cam.info)
+                print('init exposure',self.cam["exposure_time"].value)
+                print(self.cam["trigger_source"].value)
 
                 self.cam["exposure_time"]=0.001*int(self.conf.value(self.nbcam+"/shutter"))# set cam to  ms
                 print('now exposure is ',self.cam["exposure_time"].value)
@@ -343,8 +343,8 @@ class HAMAMATSU(QWidget):
         hMainLayout=QHBoxLayout()
         
         if self.light==False:
-            from visu import SEE
-            self.visualisation=SEE(parent=self,name=self.nbcam,**self.kwds) ## Widget for visualisation and tools  self.confVisu permet d'avoir plusieurs camera et donc plusieurs fichier ini de visualisation
+            from visu import SEEELECTRONS
+            self.visualisation=SEEELECTRONS(parent=self,name=self.nbcam,**self.kwds) ## Widget for visualisation and tools  self.confVisu permet d'avoir plusieurs camera et donc plusieurs fichier ini de visualisation
         else:
             from visu import SEELIGHT
             
@@ -502,17 +502,19 @@ class HAMAMATSU(QWidget):
         
     def TrigA(self):
     ## trig la CCD
-        itrig=self.trigg.currentIndex()
-        if itrig==0:
+        self.itrig=self.trigg.currentIndex()
+        if self.itrig==0:
             with dcam :
                 with self.cam:
                     self.cam["trigger_source"]=ETriggerSource.INTERNAL
-                print ('trigger OFF')
-        if itrig==1:
+                    print ('trigger OFF')
+        if self.itrig==1:
              with dcam :
                 with self.cam:
-                    self.cam["trigger_source"]=ETriggerSource.EXTERNAL
-                print ('Trigger ON ')
+                    self.cam["trigger_active"] = ETriggerActive.EDGE
+                    self.cam["trigger_source"] =  ETriggerSource.EXTERNAL
+                    ##self.cam["TRIGGERENABLE_ACTIVE"] =ETriggerEnableActive.START
+                    print ('Trigger ON ',self.cam["trigger_source"].value)
     
     def Display(self,data):
         '''Display data with Visu module
@@ -620,7 +622,7 @@ class ThreadRunAcq(QtCore.QThread):
         self.parent=parent
         self.cam = self.parent.cam
         self.stopRunAcq=False
-       
+        self.itrig = self.parent.itrig
     
     def newRun(self):
        
@@ -637,7 +639,10 @@ class ThreadRunAcq(QtCore.QThread):
             try:
                 with dcam:
                         with self.cam :
-                            print( "temp:",self.cam["sensor_temperature"].value)
+                            if self.parent.itrig ==1:
+                                self.cam["trigger_source"] =  ETriggerSource.EXTERNAL
+                            else: 
+                                self.cam["trigger_source"] =  ETriggerSource.INTERNAL
                             with Stream(self.cam,1) as stream :
                                 self.cam.start()
                                 
@@ -649,14 +654,15 @@ class ThreadRunAcq(QtCore.QThread):
             except:
                 pass   
                 
-            
-            
-        
-    
+
     def stopThreadRunAcq(self):
         self.stopRunAcq=True
-        
-        
+        if self.parent.itrig==1:
+            with dcam:
+                with self.cam:
+                    self.cam.stop()
+                    with Stream(self.cam,1) as stream :
+                        stream.close()
         
 class ThreadTemperature(QtCore.QThread):
     """
